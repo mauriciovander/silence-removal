@@ -1,16 +1,22 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
+
+
 import numpy
 import scipy.io.wavfile as wf
 import sys
 
+## number of ms of silence before selecting a new segment 
+ms = 1000
+
 class VoiceActivityDetection:
 
-    def __init__(self, channel):
+    def __init__(self, sr, ms, channel):
+        self.__sr = sr
         self.__channel = channel
-        self.__step = 160
-        self.__buffer_size = 160 
+        self.__step = sr/50
+        self.__buffer_size = sr/50 
         self.__buffer = numpy.array([],dtype=numpy.int16)
         self.__out_buffer = numpy.array([],dtype=numpy.int16)
         self.__n = 0
@@ -19,6 +25,7 @@ class VoiceActivityDetection:
         self.__silence_counter = 0
         self.__segment_count = 0
         self.__voice_detected = False
+        self.__silence_thd_ms = ms
 
     # Voice Activity Detection
     # Adaptive threshold
@@ -35,7 +42,7 @@ class VoiceActivityDetection:
         else:
             self.__silence_counter = 0
 
-        if self.__silence_counter > 50:
+        if self.__silence_counter > self.__silence_thd_ms*self.__sr/(1000*self.__buffer_size):
             result = False
         return result
 
@@ -87,15 +94,15 @@ ch = wav[1].shape[1]
 sr = wav[0]
 
 c0 = wav[1][:,0]
-c1 = wav[1][:,1]
 
 print('c0 %i'%c0.size)
 
-vad = VoiceActivityDetection(1)
+vad = VoiceActivityDetection(sr, ms, 1)
 vad.process(c0)
 
 if ch==1:
     exit()
     
-vad = VoiceActivityDetection(2)
+vad = VoiceActivityDetection(sr, ms, 2)
+c1 = wav[1][:,1]
 vad.process(c1)
