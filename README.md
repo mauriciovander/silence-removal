@@ -1,6 +1,10 @@
-# silence-removal
-Removes silence segments from wav audio files
+# Adaptive Voice Activity Detection
 
 
-# USAGE: 
+## USAGE: 
+
+Compress audio file by rempving silence:
 `python vad.py path/to/in.wav out`
+
+Create a bunch of audio segments separated by occurring silences
+`mkdir -p out && python segment.py path/to/in.wav out/out`
